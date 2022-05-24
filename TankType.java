@@ -1,0 +1,5 @@
+package com.csy;
+
+public enum TankType {
+	PLAYER1,PLAYER2,BOT
+}
