@@ -1,112 +1,140 @@
-package com.csy;
+package tankwar;
 
-import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
+import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.List;
 
-public abstract class Tank extends GameObject{
-	//¶¨ÒåÌ¹¿Ë±äÁ¿£¨³ß´ç£©
-	public int width = 40;
-	public int height = 50;
-	//Ì¹¿ËËÙ¶È
-	private int speed= 3;
-			//Ì¹¿Ë³õÊ¼·½Ïò£¨ÏòÉÏ£©
-	protected	Direction direction = Direction.UP;
-     //ËÄ¸ö·½ÏòÍ¼Æ¬
-	private String upImg;
-	private String leftImg;
-	private String rightImg;
-	private String downImg;
-	//¹¥»÷ÀäÈ´×´Ì¬
-	private boolean attackCoolDown = true;
-	//¹¥»÷ÀäÈ´Ê±¼äºÁÃë¼ä¸ô1000ms
-	private int attackCoolDownTime = 1000;
-	
-	//Ì¹¿ËÀàµÄ¹¹Ôìº¯Êı
-	public Tank(String img, int x, int y, GamePanel gamePanel,
-			String upImg,String leftImg, String rightImg,String downImg) {
-		super(img,x,y,gamePanel);
-		//¸øËÄ¸ö·½Ïò¸³Öµ
-		this.upImg = upImg;
-		this.leftImg = leftImg;
-		this.rightImg = rightImg;
-		this.downImg = downImg;
-	}
-//Ìí¼ÓÒÆ¶¯·½·¨
-	public void leftward() {
-		direction = Direction.LEFT;
-		setImg(leftImg);
-		this.x -= speed;
-	}
-	public void upward() {
-		direction = Direction.UP;
-		setImg(upImg);
-		this.y -= speed;
-	}
-	public void rightward() {
-		direction = Direction.RIGHT;
-		setImg(rightImg);
-		this.x += speed;
-	}
-	public void downward() {
-		direction = Direction.DOWN;
-		setImg(downImg);
-		this.y += speed;
-		
-	}
-	public void attack() {
-		if(attackCoolDown) {
-		Point p = this.getHeadPoint();
-		Bullet bullet = new Bullet("images/bulletGreen.gif",p.x,p.y,this.gamePanel,direction);
-		this.gamePanel.bulletlist.add(bullet);
-		//Ïß³Ì¿ªÊ¼
-		new AttackCD().start();
-	}
-	}
-		
-		//ĞÂÏß³Ì £¨ĞÂ½¨Ò»¸öÀà¼Ì³ĞThreadÀà£©
-		class AttackCD extends Thread{
-	    public void run() {                     /*Ìí¼Ó·½·¨£¬ÃüÃûÎªrun*/
-				//½«¹¥»÷¹¦ÄÜÉèÖÃÎªÀäÈ´×´Ì¬
-				attackCoolDown = false;
-				//ĞİÃß1Ãë
-				try {
-					Thread.sleep(attackCoolDownTime);
-				}catch(Exception e) {
-					e.printStackTrace();
-				}
-				//½«¹¥»÷¹¦ÄÜ½â³ıÀäÈ´×´Ì¬
-				attackCoolDown = true;
-				//Ïß³ÌÖÕÖ¹
-				this.stop();
-				
-				
-			}
-		}
-	
-	public Point getHeadPoint() {
-		switch(direction) {
-		case LEFT:
-			return new Point(x,y + height/2);
-		case RIGHT:
-			return new Point(x+width,y+height/2);
-		case UP:
-			return new Point(x+width/2,y);
-		case DOWN:
-			return new Point(x+width/2,y+height);
-			default:
-				return null;
-		}
-	}
-	//Ìí¼ÓsetImg·½·¨
-	public void setImg(String img) {
-		this.img = Toolkit.getDefaultToolkit().getImage(img);
-	}
-	@Override
-	//tankÀàµÄ·½·¨
-	public abstract void painSelf(Graphics g);
-	@Override
-	//Ö±½Ó¼Ì³Ğ¸ø¸¸Àà£¬È»ºóÔÚ¼Ì³Ğ¸ø×ÓÀà
-	public abstract Rectangle getRec();
+public class Tank extends GameObject{
+
+    private boolean attackCoolDown =true;//æ”»å‡»å†·å´çŠ¶æ€
+    private int attackCoolDownTime =1000;//æ”»å‡»å†·å´æ—¶é—´æ¯«ç§’é—´éš”1000mså‘å°„å­å¼¹
+    private String upImage; //å‘ä¸Šç§»åŠ¨æ—¶çš„å›¾ç‰‡
+    private String downImage;//å‘ä¸‹ç§»åŠ¨æ—¶çš„å›¾ç‰‡
+    private String rightImage;//å‘å³ç§»åŠ¨æ—¶çš„å›¾ç‰‡
+    private String leftImage;//å‘å·¦ç§»åŠ¨æ—¶çš„å›¾ç‰‡
+    boolean alive = true;
+    //å¦å…‹size
+    int width = 40;
+    int height = 50;
+    //å¦å…‹åˆå§‹æ–¹å‘
+    Direction direction = Direction.UP;
+    //å¦å…‹é€Ÿåº¦
+    private int speed = 3;
+    //å¦å…‹å¤´éƒ¨åæ ‡
+    Point p;
+
+    //å¦å…‹åæ ‡ï¼Œæ–¹å‘ï¼Œå›¾ç‰‡ï¼Œæ–¹å‘ï¼Œé¢æ¿
+    public Tank(String img, int x, int y, String upImage, String downImage, String leftImage, String rightImage, GamePanel gamePanel) {
+        super(img, x, y, gamePanel);
+        this.upImage = upImage;
+        this.leftImage = leftImage;
+        this.downImage = downImage;
+        this.rightImage = rightImage;
+    }
+
+    public void leftward(){
+        direction = Direction.LEFT;
+        setImg(leftImage);
+        if(!hitWall(x-speed, y) && !moveToBorder(x-speed, y) && alive){
+            this.x -= speed;
+        }
+    }
+    public void rightward(){
+        direction = Direction.RIGHT;
+        setImg(rightImage);
+        if(!hitWall(x+speed, y) && !moveToBorder(x+speed, y) && alive){
+            this.x += speed;
+        }
+    }
+    public void upward(){
+        direction = Direction.UP;
+        setImg(upImage);
+        if(!hitWall(x, y-speed) && !moveToBorder(x, y- speed) && alive){
+            this.y -= speed;
+        }
+    }
+    public void downward(){
+        direction = Direction.DOWN;
+        setImg(downImage);
+        if(!hitWall(x, y+speed) && !moveToBorder(x, y+speed) && alive){
+            this.y += speed;
+        }
+    }
+    public void attack(){
+        Point p = getHeadPoint();
+        if(attackCoolDown && alive){
+            Bullet bullet = new Bullet("images/bullet/bulletGreen.gif",p.x,p.y,direction, this.gamePanel);
+            this.gamePanel.bulletList.add(bullet);
+            attackCoolDown = false;
+            new AttackCD().start();
+        }
+    }
+
+    public boolean hitWall(int x, int y){
+        //å‡è®¾ç©å®¶å¦å…‹å‰è¿›ï¼Œä¸‹ä¸€ä¸ªä½ç½®å½¢æˆçš„çŸ©å½¢
+        Rectangle next = new Rectangle(x, y, width, height);
+        //åœ°å›¾é‡Œæ‰€æœ‰çš„å¢™ä½“
+        List<Wall> walls = this.gamePanel.wallList;
+        //åˆ¤æ–­ä¸¤ä¸ªçŸ©å½¢æ˜¯å¦ç›¸äº¤ï¼ˆå³æ˜¯å¦æ’å¢™ï¼‰
+        for(Wall w:walls){
+            if(w.getRec().intersects(next)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean moveToBorder(int x, int y){
+        if(x < 0){
+            return true;
+        }else if(x > this.gamePanel.getWidth()-width){
+            return true;
+        }
+        if(y < 0){
+            return true;
+        }else if(y > this.gamePanel.getHeight()-height){
+            return true;
+        }
+        return false;
+    }
+
+    public class AttackCD extends Thread{
+        public void run(){
+            attackCoolDown=false;//å°†æ”»å‡»åŠŸèƒ½è®¾ç½®ä¸ºå†·å´çŠ¶æ€
+            try{
+                Thread.sleep(attackCoolDownTime);//ä¼‘çœ 1ç§’
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+            attackCoolDown=true;//å°†æ”»å‡»åŠŸèƒ½è§£é™¤å†·å´çŠ¶æ€
+            this.stop();
+        }
+    }
+
+    //æ ¹æ®æ–¹å‘ç¡®å®šå¤´éƒ¨ä½ç½®ï¼Œxå’Œyæ˜¯å·¦ä¸‹è§’çš„ç‚¹
+    public Point getHeadPoint(){
+        switch (direction){
+            case UP:
+                return new Point(x + width/2, y );
+            case LEFT:
+                return new Point(x, y + height/2);
+            case DOWN:
+                return new Point(x + width/2, y + height);
+            case RIGHT:
+                return new Point(x + width, y + height/2);
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public void paintSelf(Graphics g) {
+        g.drawImage(img, x, y, null);
+    }
+
+    @Override
+    public Rectangle getRec() {
+        return new Rectangle(x, y, width, height);
+    }
 }

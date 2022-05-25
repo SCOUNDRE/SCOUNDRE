@@ -1,81 +1,74 @@
-package com.csy;
+package tankwar;
 
-import java.awt.Graphics;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.util.Random;
 
 public class Bot extends Tank{
     int moveTime = 0;
-    
-	public Bot(String img, int x, int y, GamePanel gamePanel, String upImg, String leftImg, String rightImg,
-			String downImg) {
-		super(img, x, y, gamePanel, upImg, leftImg, rightImg, downImg);
-		// TODO Auto-generated constructor stub
-	}
-	//获取随机方向
-	public Direction getRandomDirection() {
-		Random random = new Random();
-		int rnum = random.nextInt(4);
-		switch(rnum){
-			case 0 :
-				return Direction.LEFT;
-			case 1:
-				return Direction.RIGHT;
-			case 2:
-				return Direction.UP;
-			case 3:
-				return Direction.DOWN;
-				default:
-					return null;
-		}
-	}
-	public void go() {
-		if(moveTime >= 20) {
-			direction = getRandomDirection();
-			moveTime = 0;	
-		}
-		else {
-			moveTime++;
-		}
-		switch(direction) {
-		case LEFT:
-			leftward();
-			break;
-		case RIGHT:
-			rightward();
-			break;
-		case UP:
-			upward();
-			break;
-		case DOWN:
-			downward();
-			break;
-		}
-	}
+    public Bot(String img, int x, int y, String upImage, String downImage, String leftImage, String rightImage, GamePanel gamePanel) {
+        super(img, x, y, upImage, downImage, leftImage, rightImage, gamePanel);
+    }
 
-	@Override
-	public void painSelf(Graphics g) {
-		// TODO Auto-generated method stub
-		g.drawImage(img, x, y, null);
-		go();
-	}
+    public void go(){
+        attack();
+        if(moveTime>=20) {
+            direction=randomDirection();
+            moveTime=0;
+        }else {
+            moveTime+=1;
+        }
+        switch(direction) {
+            case UP:
+                upward();
+                break;
+            case DOWN:
+                downward();
+                break;
+            case RIGHT:
+                rightward();
+                break;
+            case LEFT:
+                leftward();
+                break;
+        }
+    }
 
-	@Override
-	public Rectangle getRec() {
-		// TODO Auto-generated method stub
-		return new Rectangle(x,y,width,height);
-	}
+    //鐢佃剳鍧﹀厠闅忔満鏂瑰悜
+    public Direction randomDirection() {
+        Random r = new Random();
+        int rnum = r.nextInt(4);
+        switch(rnum) {
+            case 0:
+                return Direction.UP;
+            case 1:
+                return Direction.RIGHT;
+            case 2:
+                return Direction.LEFT;
+            default:
+                return Direction.DOWN;
+        }
+    }
 
-	@Override
-	public void paintSelft(Graphics g) {
-		// TODO Auto-generated method stub
-		
-	}
+    //鍙湁4%鍑犵巼鏀诲嚮
+    public void attack() {
+        Point p = getHeadPoint();
+        Random r = new Random();
+        int rnum =r.nextInt(100);
+        //System.out.println("r: "+rnum);
+        if(rnum<4) {
+            EnemyBullet enemyBullet = new EnemyBullet("images/bullet/bulletYellow.gif",p.x,p.y,direction,gamePanel);
+            this.gamePanel.bulletList.add(enemyBullet);
+        }
+    }
 
-	@Override
-	public Rectangle gerRec() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public void paintSelf(Graphics g) {
+        g.drawImage(img,x,y,null);
+        this.go();
+    }
 
+    @Override
+    public Rectangle getRec() {
+        return new Rectangle(x, y, width, height);
+    }
 }

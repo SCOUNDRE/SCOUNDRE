@@ -1,42 +1,93 @@
-package com.csy;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
+package tankwar;
+
+import java.awt.*;
+
 public abstract class GameObject {
-	//Ìí¼ÓÓÎÏ·¸¸ÀàµÄ±äÁ¿
-//Í¼Æ¬
-	public Image img;
-//×ø±ê	
-	public int x;
-	public int y;
-	//ÓÎÏ·ÔªËØµÄ¿í
-	public int width;
-    //ÓÎÏ·ÔªËØµÄ¸ß
-	public int height;
-	//ÓÎÏ·ÔªËØµÄÒÆ¶¯ËÙ¶È
-	public int speed;
-    //ÓÎÏ·ÔªËØµÄÒÆ¶¯·½Ïò
-	public Direction direction;
-    //ÒıÈëÖ÷½çÃæ
-	 public GamePanel gamePanel;
-//±àĞ´ÓÎÏ·¸¸ÀàµÄ¹¹Ôìº¯Êı
-	public GameObject(String img, int x, int y , GamePanel gamePanel) {
-		//¸ø±äÁ¿¸³Öµ(ÀàĞÍÊÇimage£¬²ÎÊıÎªstringÀàĞÍ)
-		this.img =Toolkit.getDefaultToolkit().getImage(img);
-		this.x =x;
-		this.y =y;
-		this.gamePanel = gamePanel;
-	}
-	
-	//»æÖÆ·½·¨£¨ÓÎÏ·ÔªËØĞèÒªµÄ¹²Í¬·½·¨£©
-	public abstract void paintSelft(Graphics g);
-	//·µ»Ø×ÔÉí¾ØĞÎµÄ·½·¨
-	public abstract Rectangle gerRec();
-	public abstract void painSelf(Graphics g);
-	public abstract Rectangle getRec();
-	public Rectangle getRec1() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
+    //æ¸¸æˆå…ƒç´ å›¾ç‰‡
+    Image img;
+    //æ¸¸æˆå…ƒç´ çš„æ¨ªåæ ‡
+    int x;
+    //æ¸¸æˆå…ƒç´ çš„çºµåæ ‡
+    int y;
+    //æ¸¸æˆå…ƒç´ çš„å®½
+    int width;
+    //æ¸¸æˆå…ƒç´ çš„é«˜
+    int height;
+    //æ¸¸æˆå…ƒç´ çš„ç§»åŠ¨é€Ÿåº¦
+    int speed;
+    //æ¸¸æˆå…ƒç´ çš„ç§»åŠ¨æ–¹å‘
+    Direction direction;
+    //å¼•å…¥ä¸»ç•Œé¢
+    GamePanel gamePanel;
+
+    public GameObject(){}
+    public GameObject(String img, int x, int y, GamePanel gamePanel) {
+        this.img = Toolkit.getDefaultToolkit().getImage(img);
+        this.x = x;
+        this.y = y;
+        this.gamePanel = gamePanel;
+    }
+
+    public Image getImg() {
+        return img;
+    }
+
+    public void setImg(String img) {
+        this.img = Toolkit.getDefaultToolkit().getImage(img);
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public double getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+
+    public GamePanel getGamePanel() {
+        return gamePanel;
+    }
+
+    public void setGamePanel(GamePanel gamepanel) {
+        this.gamePanel = gamePanel;
+    }
+
+    //ç»§æ‰¿å…ƒç´ ç»˜åˆ¶è‡ªå·±çš„æ–¹æ³•
+    public abstract void paintSelf(Graphics g);
+
+    //è·å–å½“å‰æ¸¸æˆå…ƒç´ çš„çŸ©å½¢,æ˜¯ä¸ºç¢°æ’æ£€æµ‹è€Œå†™
+    public abstract Rectangle getRec();
 }

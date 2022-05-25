@@ -1,187 +1,240 @@
-package com.csy;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Toolkit;
+package tankwar;
+
+import com.sun.deploy.net.MessageHeader;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import javax.swing.JFrame;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
 public class GamePanel extends JFrame {
-	
-	public static Object gamePanel;
-	//¶¨ÒåË«»º´æÍ¼Æ¬
-	Image offScreemImage = null;
-	//Ìí¼ÓÓÎÏ·Ä£Ê½ 0 ÓÎÏ·Î´¿ªÊ¼£¬1 µ¥ÈËÄ£Ê½£¬2 Ë«ÈËÄ£Ê½
-     int state = 0;
-	//ÓÎÏ·ÊÇ·ñ¿ªÊ¼
-	private boolean start = false;
-	//ÁÙÊ±±äÁ¿
-	 int a = 1;
-	 //ÖØ»æ´ÎÊı
-	 int count = 0;
-	 //ÒÑÉú³ÉµĞÈËÊıÁ¿
-	 int enemyCount = 0;
-//´°¿Ú³ß´ç
-	 int width = 800;
-	 int height = 610;
-	 //ÎïÌå¼¯ºÏ
-	    public List<Tank> tankList = new ArrayList<>();
-	    public List<Bullet> bulletList = new ArrayList<Bullet>();
-	    public List<Bot> botList1 = new ArrayList<Bot>();
-	    
-//Ö¸ÕëÍ¼Æ¬
-	 Image select = Toolkit.getDefaultToolkit().getImage("images/selecttank.gif");
-//Ö¸Õë³õÊ¼×İ×ø±ê
-     int y=150;
-     //ÓÎÏ·ÔªËØÁĞ±í
-     ArrayList<Bullet> bulletlist = new ArrayList<Bullet>();
-     ArrayList<Bot> botList = new ArrayList<Bot>();
-     ArrayList<Bullet> removeList = new ArrayList<Bullet>();
-     PlayerOne playerOne = new PlayerOne("images/p1tankU.gif",125,510,this,
-    		 "images/p1tankU.gif","images/p1tankL.gif",
-    		 "images/p1tankR.gif","images/p1tankD.gif");
-     //bot
-     /*Bot bot = new Bot("images/enemy1U.gif",500,110,this,
-    		 "images/enemy1U.gif","images/enemy1L.gif",
-    		 "images/enemy1R.gif","images/enemy1D.gif");*/
-//´°¿ÚÆô¶¯·½·¨
-    public void lanuch() {
-	//±êÌâ
-	setTitle("Ì¹¿Ë´óÕ½");
-	//´°¿Ú³õÊ¼´óĞ¡
-	setSize(width,height);
-	//Ê¹ÆÁÄ»¾ÓÖĞ
-	setLocationRelativeTo(null);
-	//Ìí¼Ó¹Ø±ÕÊÂ¼ş
-	setDefaultCloseOperation(3);
-	//ÓÃ»§²»ÄÜµ÷Õû´óĞ¡
-	setResizable(false);
-	//Ê¹´°¿Ú¿É¼û
-	setVisible(true);
-	//¸ø´°¿ÚÌí¼Ó¼üÅÌ¼àÊÓÆ÷
-	this.addKeyListener(new GamePanel.KeyMonitor());
-	//ÖØ»æ
-	while(true) {
-		//Ìí¼ÓµçÄÔÌ¹¿Ë
-		if(count % 100 == 1 && enemyCount < 10) {
-			Random random = new Random();
-			int rnum = random.nextInt(800);
-			botList1.add(new Bot("images/enemy1U.gif",rnum,110,this, 
-					   "images/enemy1U.gif","images/enemy1L.gif", 
-					   "images/enemy1R.gif","images/enemy1D.gif"));
-			enemyCount ++;
-		}
-		repaint();
-		try {
-			//Ïß³ÌĞİÃß 1Ãë = 1000ºÁÃë
-			Thread.sleep(25);
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-	}
+
+    /** å®šä¹‰åŒç¼“å­˜å›¾ç‰‡ */
+    private Image offScreenImage = null;
+    //æ¸¸æˆçŠ¶æ€ 0 æ¸¸æˆæœªå¼€å§‹ï¼Œ1 å•äººæ¨¡å¼ï¼Œ2 åŒäººæ¨¡å¼ï¼Œ 3 æ¸¸æˆæš‚åœï¼Œ 4 æ¸¸æˆå¤±è´¥ï¼Œ5 æ¸¸æˆæˆåŠŸ
+    public int state= 0;
+    //ä¸´æ—¶å˜é‡
+    private int a = 1;
+    //é‡ç»˜æ¬¡æ•°
+    public int count = 0;
+    //çª—å£é•¿å®½
+    private int width = 800;
+    private int height = 610;
+    //æ•Œäººæ•°é‡
+    private int enemyCount = 0;
+    //é«˜åº¦
+    private int y = 150;
+    //æ˜¯å¦å¼€å§‹
+    private boolean start = false;
+    //ç‰©ä½“é›†åˆ
+    public List<Bullet> bulletList = new ArrayList<>();
+    public List<Bot> botList = new ArrayList<>();
+    public List<Tank> tankList = new ArrayList<>();
+    public List<Wall> wallList = new ArrayList<>();
+    public List<Bullet> removeList = new ArrayList<>();
+    public List<Base> baseList = new ArrayList<>();
+    public List<BlastObj> blastList = new ArrayList<>();
+    //èƒŒæ™¯å›¾ç‰‡
+    public Image background = Toolkit.getDefaultToolkit().getImage("images/background.jpg");
+    //æŒ‡é’ˆå›¾ç‰‡
+    private Image select = Toolkit.getDefaultToolkit().getImage("images/selecttank.gif");
+    //åŸºåœ°
+    private Base base = new Base("images/star.gif", 365, 560, this);
+    //ç©å®¶
+    private PlayerOne playerOne = new PlayerOne("images/player1/p1tankU.gif", 125, 510,
+            "images/player1/p1tankU.gif","images/player1/p1tankD.gif",
+            "images/player1/p1tankL.gif","images/player1/p1tankR.gif", this);
+    private PlayerTwo playerTwo = new PlayerTwo("images/player2/p2tankU.gif", 625, 510,
+            "images/player2/p2tankU.gif","images/player2/p2tankD.gif",
+            "images/player2/p2tankL.gif","images/player2/p2tankR.gif", this);
+
+    //çª—å£çš„å¯åŠ¨æ–¹æ³•
+    public void launch(){
+        //æ ‡é¢˜
+        setTitle("å¦å…‹å¤§æˆ˜");
+        //çª—å£åˆå§‹å¤§å°
+        setSize(width, height);
+        //ç”¨æˆ·ä¸èƒ½è°ƒæ•´å¤§å°
+        setResizable(false);
+        //ä½¿çª—å£å¯è§
+        setVisible(true);
+        //è·å–å±å¹•åˆ†è¾¨ç‡ï¼Œä½¿çª—å£ç”Ÿæˆæ—¶å±…ä¸­
+        setLocationRelativeTo(null);
+        //æ·»åŠ å…³é—­äº‹ä»¶
+        setDefaultCloseOperation(3);
+        //æ·»åŠ é”®ç›˜äº‹ä»¶
+        this.addKeyListener(new GamePanel.KeyMonitor());
+        //æ·»åŠ å›´å¢™
+        for(int i = 0; i< 14; i ++){
+            wallList.add(new Wall("images/walls.gif", i*60 ,170, this ));
+        }
+        wallList.add(new Wall("images/walls.gif", 305 ,560,this ));
+        wallList.add(new Wall("images/walls.gif", 305 ,500,this ));
+        wallList.add(new Wall("images/walls.gif", 365 ,500,this ));
+        wallList.add(new Wall("images/walls.gif", 425 ,500,this ));
+        wallList.add(new Wall("images/walls.gif", 425 ,560,this ));
+        //æ·»åŠ åŸºåœ°
+        baseList.add(base);
+
+        while (true){
+            if(botList.size() == 0 && enemyCount == 10){
+                state = 5;
+            }
+            if(tankList.size() == 0 && (state == 1 || state == 2)){
+
+                state = 4;
+            }
+            if(state == 1 || state == 2){
+                if (count % 100 == 1 && enemyCount < 10) {
+                    Random r = new Random();
+                    int rnum =r.nextInt(800);
+                    botList.add(new Bot("images/enemy/enemy1U.gif", rnum, 110,
+                            "images/enemy/enemy1U.gif","images/enemy/enemy1D.gif",
+                            "images/enemy/enemy1L.gif","images/enemy/enemy1R.gif", this));
+                    enemyCount++;
+                    //System.out.println("bot: " + botList.size());
+                }
+            }
+            repaint();
+            try {
+                //çº¿ç¨‹ä¼‘çœ   1ç§’ = 1000æ¯«ç§’
+                Thread.sleep(25);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void paint(Graphics g) {
+        //System.out.println(bulletList.size());
+        //System.out.println("tank"+tankList.size());
+        //åˆ›å»ºå’Œå®¹å™¨ä¸€æ ·å¤§å°çš„Imageå›¾ç‰‡
+        if(offScreenImage ==null){
+            offScreenImage=this.createImage(width, height);
+        }
+        //è·å¾—è¯¥å›¾ç‰‡çš„ç”»å¸ƒ
+        Graphics gImage= offScreenImage.getGraphics();
+        //è®¾ç½®èƒŒæ™¯é¢œè‰²
+        gImage.setColor(Color.gray);
+        //å¡«å……æ•´ä¸ªç”»å¸ƒ
+        gImage.fillRect(0, 0, width, height);
+        //æ”¹å˜ç”»ç¬”çš„é¢œè‰²
+        gImage.setColor(Color.yellow);
+        //æ”¹å˜æ–‡å­—å¤§å°å’Œæ ·å¼
+        gImage.setFont(new Font("ä»¿å®‹",Font.BOLD,50));
+        if(state == 0){
+            //æ·»åŠ æ–‡å­—
+            gImage.drawString("é€‰æ‹©æ¸¸æˆæ¨¡å¼",220,100);
+            gImage.drawString("å•äººæ¸¸æˆ",220,200);
+            gImage.drawString("åŒäººæ¸¸æˆ",220,300);
+            gImage.drawString("æŒ‰1ï¼Œ2é€‰æ‹©æ¨¡å¼ï¼ŒæŒ‰å›è½¦å¼€å§‹æ¸¸æˆ",0,400);
+            gImage.drawImage(select,160,y,null);
+        }
+        else if(state == 1||state == 2){
+            gImage.setColor(Color.red);
+            gImage.setFont(new Font("ä»¿å®‹",Font.BOLD,20));
+            gImage.drawString("WASDæ§åˆ¶ç§»åŠ¨",0,510);
+            gImage.drawString("ç©ºæ ¼å°„å‡»",0,550);
+            if(state == 2){
+                gImage.drawString("æ–¹å‘é”®æ§åˆ¶ç§»åŠ¨",575,510);
+                gImage.drawString("Kå°„å‡»",575,550);
+            }
+
+            //painté‡ç»˜æ¸¸æˆå…ƒç´ 
+            for(Tank tank : tankList){
+                tank.paintSelf(gImage);
+            }
+            for(Bullet bullet: bulletList){
+                bullet.paintSelf(gImage);
+            }
+            bulletList.removeAll(removeList);
+            for(Bot bot: botList){
+                bot.paintSelf(gImage);
+            }
+            for (Wall wall: wallList){
+                wall.paintSelf(gImage);
+            }
+            for(Base base : baseList){
+                base.paintSelf(gImage);
+            }
+            for(BlastObj blast : blastList){
+                blast.paintSelf(gImage);
+            }
+            //é‡ç»˜æ¬¡æ•°+1
+            count++;
+        }
+        else if(state == 3){
+            gImage.drawString("æ¸¸æˆæš‚åœ",220,200);
+        }
+        else if(state == 4){
+            gImage.drawString("æ¸¸æˆå¤±è´¥",220,200);
+        }
+        else if(state == 5){
+            gImage.drawString("æ¸¸æˆèƒœåˆ©",220,200);
+        }
+        /** å°†ç¼“å†²åŒºç»˜åˆ¶å¥½çš„å›¾å½¢æ•´ä¸ªç»˜åˆ¶åˆ°å®¹å™¨çš„ç”»å¸ƒä¸­ */
+        g.drawImage(offScreenImage, 0, 0, null);
+    }
+
+    private class KeyMonitor extends KeyAdapter {
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            //super.keyPressed(e);
+            int key = e.getKeyCode();
+            switch (key){
+                case KeyEvent.VK_1:
+                    y = 150;
+                    a = 1;
+                    break;
+                case KeyEvent.VK_2:
+                    y = 250;
+                    a = 2;
+                    break;
+                case KeyEvent.VK_ENTER:
+                    state = a;
+                    //æ·»åŠ ç©å®¶
+                    if(state == 1 && !start){
+                        tankList.add(playerOne);
+                    }else{
+                        tankList.add(playerOne);
+                        tankList.add(playerTwo);
+                    }
+                    start = true;
+                    break;
+                case KeyEvent.VK_P:
+                    if(state != 3){
+                        a = state;
+                        state = 3;
+                    }
+                    else{
+                        state = a;
+                        if(a == 0) {
+                            a = 1;
+                        }
+                    }
+                    break;
+                default:
+                    playerOne.keyPressed(e);
+                    playerTwo.keyPressed(e);
+                    break;
+            }
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e){
+            playerOne.keyReleased(e);
+            playerTwo.keyReleased(e);
+        }
+    }
+
+    public static void main(String[] args) {
+        GamePanel gamePanel = new GamePanel();
+        gamePanel.launch();
+    }
 }
-
-//Ê×ÏÈ´´½¨Paint£¨£©·½·¨
-@ Override
-public void paint (Graphics g) {
-	//´´½¨ºÍÈİÆ÷Ò»Ñù´óĞ¡µÄImageÍ¼Æ¬
-	if(offScreemImage == null) {
-		offScreemImage = this.createImage(width, height);
-	}
-	//»ñµÃ¸ÃÍ¼Æ¬µÄ»­²¼
-	Graphics gImage = offScreemImage.getGraphics();
-	//ÉèÖÃ±³¾°ÑÕÉ«£¨Ä¬ÈÏºÚÉ«£©
-	gImage.setColor(Color.gray);
-	//Îª´°¿ÚÌí¼Ó±³¾°£¨»æÖÆÊµĞÄ¾ØĞÎ£¬È»ºóÌî³äÕû¸ö»­²¼£©
-	gImage.fillRect(0, 0, width, height);
-	//¸Ä±ä»­±ÊÑÕÉ«£¬ÈÃËüºÍ±³¾°ÑÕÉ«Çø·Ö¿ª
-	gImage.setColor(Color.blue);
-	//¸Ä±äÎÄ×Ö´óĞ¡ºÍÑùÊ½
-	gImage.setFont(new Font ("·ÂËÎ",Font.BOLD,50));
-	//state = 0,ÓÎÏ·Î´¿ªÊ¼£»
-	if(state == 0) {
-		//Ìí¼ÓÎÄ×Ö
-		gImage.drawString("Ñ¡ÔñÓÎÏ·Ä£Ê½", 220, 100);
-		gImage.drawString("µ¥ÈËÄ£Ê½", 220, 200);
-		gImage.drawString("Ë«ÈËÄ£Ê½", 220, 300);
-		gImage.drawString("°´1£¬2Ñ¡ÔñÄ£Ê½,°´»Ø³µ¿ªÊ¼ÓÎÏ·", 0,400);
-		//»æÖÆÖ¸Õë
-		gImage.drawImage(select, 160, y, null);
-	}
-	//state ==0/1,ÓÎÏ·¿ªÊ¼;
-	else if (state == 1 || state == 2) {
-		gImage.drawString("ÓÎÏ·¿ªÊ¼", 220, 100);
-	if (state == 1) {
-		gImage.drawString("µ¥ÈËÄ£Ê½", 220, 200);
-	}
-	else {
-		gImage.drawString("Ë«ÈËÄ£Ê½", 220, 200);
-		}
-	//Ìí¼ÓÓÎÏ·ÔªËØ
-	playerOne.painSelf(gImage);
-	//Ñ­»·×Óµ¯ÁĞ±í
-	for(Bullet bullet: bulletlist) {
-		bullet.paintSelft(gImage);
-	}
-	bulletList.removeAll(removeList);
-	/*bot.painSelf(gImage);*/
-	for(Bot bot:botList1) {
-		bot.painSelf(gImage);
-	}
-	//ÖØ»æÒ»´Î
-	count++;
-	}//½«»º´æÇø»æÖÆºÃµÄÍ¼ĞÎÕû¸ö»æÖÆµ½ÈİÆ÷µÄ»­²¼ÖĞ
-	g.drawImage(offScreemImage, 0, 0, null);
-	
-}
-//±àĞ´¼üÅÌ¼àÊÓÆ÷
-private class KeyMonitor extends KeyAdapter{
-//°´ÏÂ¼üÅÌ
-	@Override
-	public void keyPressed(KeyEvent e) {
-		//·µ»Ø¼üÖµ£¨Êä³ö°´¼ü£©
-		int key = e.getKeyCode();
-		//Í¨¹ıswitch·½·¨À´ÅĞ¶Ï°´¼ü1µÄ¼üÖµ
-		switch(key) {
-		case KeyEvent.VK_1://°´¼ü1µÄ¼üÖµ
-			  if(!start){
-				a=1;
-		        y=150;
-			  }
-		break;
-		case KeyEvent.VK_2:
-			  if(!start){
-		a=2;
-		y=250;
-			  }
-		break;
-		case KeyEvent.VK_ENTER:
-			tankList.add(playerOne);
-		state = a;
-		start = true;
-		break;
-		default:
-		playerOne.keyPressed(e);
-		break;
-		}
-		System.out.print(e.getKeyChar());
-	}
-	//ËÉ¿ª¼üÅÌ
-	@Override
-	public void keyReleased(KeyEvent e) {
-		playerOne.KeyRleased(e);
-	}
-	}
-	//Ìí¼Ómain·½·¨
-	public static void main(String[] args) {
-		GamePanel gamePanel = new GamePanel();
-		gamePanel.lanuch();
-	}
-  }
-
-
-
